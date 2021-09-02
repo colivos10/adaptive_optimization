@@ -4,89 +4,82 @@
 import numpy as np
 import pandas as pd
 
-def objective_function(cost_matrix, solution_set):
+def objective_function(dist_matrix, flow_matrix, departments_set, solution_set):
 
-    z = np.sum([cost_matrix[i,j] for (i,j) in solution_set])
+    z = np.sum([(np.sum([dist_matrix[j, k] * flow_matrix[i, k] for k in departments_set])) for (i,j) in solution_set])
 
     return z
 
-def swap_movement(assignment_set):
+def swap_movement(first_set, second_set):
+
+    random_swap = np.random.choice(second_set, 2)
+
+    index_one = np.where(second_set == random_swap[0])
+    index_two =np.where(second_set == random_swap[1])
+    second_set[index_one], second_set[index_two] = second_set[index_two], second_set[index_one]
+    assignment_set = np.vstack((first_set, second_set)).T
 
     return assignment_set
 
 # Import data
-df_distance = pd.read_excel('Simulated_Annealing_HW1/data_qap.xlsx', sheet_name = 'Distance', header=None)
+df_distance = pd.read_excel('data_qap.xlsx', sheet_name = 'Distance', header=None)
 distance_matrix = df_distance.to_numpy()
 
-df_flow = pd.read_excel('Simulated_Annealing_HW1/data_qap.xlsx', sheet_name = 'Flow', header=None)
+df_flow = pd.read_excel('data_qap.xlsx', sheet_name = 'Flow', header=None)
 flow_matrix = df_flow.to_numpy()
 
-assignment_matrix = distance_matrix * flow_matrix # Cost matrix
-
 # Create random initial solution
-departments_first_set = np.array([i for i in range(len(assignment_matrix))])
-departments_second_set = np.array([i for i in range(len(assignment_matrix))])
+departments_first_set = np.array([i for i in range(len(distance_matrix))])
+departments_second_set = np.array([i for i in range(len(distance_matrix))])
 np.random.shuffle(departments_second_set)
-assignment_set = np.vstack((departments_first_set, departments_second_set)).T
 
+# Solution
+assignment_set_initial = np.vstack((departments_first_set, departments_second_set)).T
+assignment_set_next = np.copy(assignment_set_initial)
+assignment_set_temp = np.copy(assignment_set_initial)
+assignment_set_final = np.copy(assignment_set_initial)
+
+z_next = objective_function(distance_matrix, flow_matrix, departments_first_set, assignment_set_initial)
+print(z_next)
 # Generate initial solution randomly
-#np.random.seed(0)
+np.random.seed(0)
 # Simulated annealing parameters
-temperature_0 = 10
+temperature_0 = 10000
 temperature_next = temperature_0
 
-number_iterations = 10000
-number_moves = 10
-alpha = 0.2
+number_iterations = 1000
+number_moves = 100
+alpha = 0.9
 
-x_next = x_0
-y_next = y_0
-
-x_final = x_0
-y_final = y_0
-
-z_next = z_function(x_next, y_next)
-
-x_temp = 0
-y_temp = 0
-
+z_next = objective_function(distance_matrix, flow_matrix, departments_first_set, assignment_set_next)
+print(z_next)
 # Simulated annealing
 for i in range(number_iterations):
     for j in range(number_moves):
-
-        # Get x next solution
-        x_temp = uniform_movement_operator(x_next, x_lower_bound, x_upper_bound)
-        while (x_temp > x_upper_bound) or (x_temp < x_lower_bound):
-            x_temp = uniform_movement_operator(x_next, x_lower_bound, x_upper_bound)
-
-        # Get y next solution
-        y_temp = uniform_movement_operator(y_next, y_lower_bound, y_upper_bound)
-        while (y_temp > y_upper_bound) or (y_temp < y_lower_bound):
-            y_temp = uniform_movement_operator(y_next, y_lower_bound, y_upper_bound)
-
-        z_temp = z_function(x_temp, y_temp)
+        #print('First', assignment_set_next)
+        # Do next move
+        assignment_set_temp = swap_movement(departments_first_set, departments_second_set)
+        #print('Second', assignment_set_temp)
+        z_temp = objective_function(distance_matrix, flow_matrix, departments_first_set, assignment_set_temp)
 
         # For the evaluation if the next IF is false
         n_random = np.random.random()
         exp_fun = np.exp(-(z_temp - z_next)/ temperature_next)
 
         if z_temp <= z_next:
-            x_next = x_temp
-            y_next = y_temp
+            assignment_set_next = np.copy(assignment_set_temp)
         elif n_random <= exp_fun:
-            x_next = x_temp
-            y_next = y_temp
+            assignment_set_next = np.copy(assignment_set_temp)
         else: # Solution remains the same
-            x_next = x_next
-            y_next = y_next
+            assignment_set_next = assignment_set_next
 
-        z_next = z_function(x_next, y_next)
-        z_final = z_function(x_final, y_final)
+        z_next = objective_function(distance_matrix, flow_matrix, departments_first_set, assignment_set_next)
+        z_final = objective_function(distance_matrix, flow_matrix, departments_first_set, assignment_set_final)
 
         if z_next <= z_final:
-            x_final = x_next
-            y_final = y_next
+            assignment_set_final = np.copy(assignment_set_next)
 
     temperature_next = alpha * temperature_0
-
-print(x_final, y_final, z_final)
+    #print(z_final)
+print(assignment_set_final)
+print(z_final)

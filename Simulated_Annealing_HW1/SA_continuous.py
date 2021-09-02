@@ -44,7 +44,7 @@ y_next = y_0
 x_final = x_0
 y_final = y_0
 
-z_next = z_function(x_next, y_next)
+z_next = z_function(x_0, y_0)
 
 x_temp = 0
 y_temp = 0
