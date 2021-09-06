@@ -1,17 +1,16 @@
 import numpy as np
+import pandas as pd
 
 def z_function(x, y):
     z = (4 - 2.1 * (x ** 2) + (x ** 4) / 3) * (x ** 2) + x * y + (-4 + 4 * (y ** 2)) * (y ** 2)
 
     return z
 
-
 def uniform_movement_operator(x_null, lower_bound, upper_bound,):
     number_movement = (np.random.random() - 0.5) * (upper_bound - lower_bound)
     x_next_movement = x_null + number_movement
 
     return x_next_movement
-
 
 def normal_movement_operator(x_null, lower_bound, upper_bound):
     number_movement = (upper_bound - lower_bound) / 6 * np.random.normal()
@@ -24,73 +23,106 @@ x_lower_bound = -3
 x_upper_bound = 3
 y_lower_bound = -2
 y_upper_bound = 2
-#np.random.seed(0)
 
-# Generate initial solution randomly from a uniform distribution
-x_0 = np.random.uniform(low=x_lower_bound, high=x_upper_bound, size=None)
-y_0 = np.random.uniform(low=y_lower_bound, high=y_upper_bound, size=None)
+# Info Experiments
+exp_seeds = [0, 3, 5, 7, 10]
+exp_temp = [50, 100, 500]
+exp_stops = [1000, 5000, 10000]
 
-# Simulated annealing parameters
-temperature_0 = 10
-temperature_next = temperature_0
+sol_x = []
+sol_y = []
+save_z = []
+seeds_list = []
+temp_list = []
+stops_list = []
 
-number_iterations = 10000
-number_moves = 10
-alpha = 0.2
+for it_seed in exp_seeds:
+    for it_temp in exp_temp:
+        for it_stops in exp_stops:
+            print("New experiment", it_seed, it_temp, it_stops)
 
-x_next = x_0
-y_next = y_0
+            np.random.seed(it_seed)
 
-x_final = x_0
-y_final = y_0
+            # Generate initial solution randomly from a uniform distribution
+            x_0 = np.random.uniform(low=x_lower_bound, high=x_upper_bound, size=None)
+            y_0 = np.random.uniform(low=y_lower_bound, high=y_upper_bound, size=None)
 
-z_next = z_function(x_0, y_0)
+            # Simulated annealing parameters
+            temperature_0 = it_temp
+            temperature_next = temperature_0
 
-x_temp = 0
-y_temp = 0
+            number_iterations = it_stops
+            number_moves = 10
+            alpha = 0.9
 
-# Simulated annealing
-for i in range(number_iterations):
-    for j in range(number_moves):
+            x_next = x_0
+            y_next = y_0
 
-        # Get x next solution
-        x_temp = uniform_movement_operator(x_next, x_lower_bound, x_upper_bound)
-        while (x_temp > x_upper_bound) or (x_temp < x_lower_bound):
-            x_temp = uniform_movement_operator(x_next, x_lower_bound, x_upper_bound)
+            x_final = x_0
+            y_final = y_0
 
-        # Get y next solution
-        y_temp = uniform_movement_operator(y_next, y_lower_bound, y_upper_bound)
-        while (y_temp > y_upper_bound) or (y_temp < y_lower_bound):
-            y_temp = uniform_movement_operator(y_next, y_lower_bound, y_upper_bound)
+            z_next = z_function(x_0, y_0)
 
-        z_temp = z_function(x_temp, y_temp)
+            x_temp = 0
+            y_temp = 0
 
-        # For the evaluation if the next IF is false
-        n_random = np.random.random()
-        exp_fun = np.exp(-(z_temp - z_next)/ temperature_next)
+            temp_save = [temperature_next]
+            obj_final = [z_next]
 
-        if z_temp <= z_next:
-            x_next = x_temp
-            y_next = y_temp
-        elif n_random <= exp_fun:
-            x_next = x_temp
-            y_next = y_temp
-        else: # Solution remains the same
-            x_next = x_next
-            y_next = y_next
+            # Simulated annealing
+            for i in range(number_iterations):
+                for j in range(number_moves):
 
-        z_next = z_function(x_next, y_next)
-        z_final = z_function(x_final, y_final)
+                    # Get x next solution
+                    x_temp = uniform_movement_operator(x_next, x_lower_bound, x_upper_bound)
+                    while (x_temp > x_upper_bound) or (x_temp < x_lower_bound):
+                        x_temp = uniform_movement_operator(x_next, x_lower_bound, x_upper_bound)
 
-        if z_next <= z_final:
-            x_final = x_next
-            y_final = y_next
+                    # Get y next solution
+                    y_temp = uniform_movement_operator(y_next, y_lower_bound, y_upper_bound)
+                    while (y_temp > y_upper_bound) or (y_temp < y_lower_bound):
+                        y_temp = uniform_movement_operator(y_next, y_lower_bound, y_upper_bound)
 
-    temperature_next = alpha * temperature_0
+                    z_temp = z_function(x_temp, y_temp)
 
-print(x_final, y_final, z_final)
+                    # For the evaluation if the next IF is false
+                    n_random = np.random.random()
+                    exp_fun = np.exp(-(z_temp - z_next)/ temperature_next)
 
+                    if z_temp <= z_next:
+                        x_next = x_temp
+                        y_next = y_temp
+                    elif n_random <= exp_fun:
+                        x_next = x_temp
+                        y_next = y_temp
+                    else: # Solution remains the same
+                        x_next = x_next
+                        y_next = y_next
 
+                    z_next = z_function(x_next, y_next)
+                    z_final = z_function(x_final, y_final)
+
+                    if z_next <= z_final:
+                        x_final = x_next
+                        y_final = y_next
+
+                temperature_next = alpha * temperature_next
+
+                temp_save.append(temperature_next)
+
+                obj_final.append(z_final)
+
+            pd.DataFrame({'temp': temp_save, 'cost': obj_final}).to_excel(f'results_cont/exp_{it_seed}_{it_temp}_{it_stops}.xlsx')
+
+            sol_x.append(x_final)
+            sol_y.append(y_final)
+            save_z.append(z_final)
+            seeds_list.append(it_seed)
+            temp_list.append(it_temp)
+            stops_list.append(it_stops)
+
+pd.DataFrame({'Seed': seeds_list, 'Temperature': temp_list, 'Iterations': stops_list,
+              'x': sol_x, 'y': sol_y, 'z': save_z}).to_excel(f'results_cont/solutions.xlsx')
 
 
 
