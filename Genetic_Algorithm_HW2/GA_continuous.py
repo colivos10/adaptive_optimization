@@ -4,8 +4,6 @@
 # %%
 import numpy as np
 import pandas as pd
-from sklearn.utils import shuffle
-
 
 # %%
 def z_function(x, y):
@@ -23,7 +21,7 @@ x_upper_bound = 32
 y_lower_bound = -32
 y_upper_bound = 32
 
-n_bits = 10
+n_bits = 5
 
 n_variables = 2
 
