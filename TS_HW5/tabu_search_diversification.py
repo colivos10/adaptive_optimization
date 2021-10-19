@@ -42,6 +42,7 @@ obj_final_total = []
 #%%
 for tabu_exp in [13]:
     tabu_length = tabu_exp
+
     for exp_it in range(10):
         np.random.seed(exp_it)
         departments_set = np.array([i for i in range(n_departments)])
@@ -53,7 +54,14 @@ for tabu_exp in [13]:
         best_obj = objective_function(distance_matrix, flow_matrix, arcs, assignment_initial)
         tabu_list = []
         obj_final = [best_obj]
+        counter_it = 0
         for i in range(number_iterations):
+
+            if counter_it > 5:
+                location_set = np.array([i for i in range(n_departments)])
+                np.random.shuffle(location_set)
+                counter_it = 0
+
             result_swap, solutions_swap, objective_swap = all_swap(location_set, distance_matrix, flow_matrix, arcs)
             neighborhood = np.array([[result_swap[j], solutions_swap[j], objective_swap[j]] for j in range(190)])
             neighborhood = neighborhood[neighborhood[:, 2].argsort()]
@@ -77,8 +85,12 @@ for tabu_exp in [13]:
                 best_set = neigh_sol[1]
 
             obj_final.append(best_obj)
+
+            if obj_final[-1] == obj_final[-2]:
+                counter_it += 1
+
         obj_final_total.append(obj_final)
         print(best_set)
 
 df = pd.DataFrame(obj_final_total)
-df.T.to_excel("TS_HW5/obj_value_d.xlsx")
+df.T.to_excel("TS_HW5/obj_value_f.xlsx")
