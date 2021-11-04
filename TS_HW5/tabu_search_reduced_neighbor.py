@@ -53,18 +53,22 @@ for tabu_exp in [13]:
         best_obj = objective_function(distance_matrix, flow_matrix, arcs, assignment_initial)
         tabu_list = []
         obj_final = [best_obj]
+        best_set = location_set
         for i in range(number_iterations):
             result_swap, solutions_swap, objective_swap = all_swap(location_set, distance_matrix, flow_matrix, arcs)
             neighborhood = np.array([[result_swap[j], solutions_swap[j], objective_swap[j]] for j in range(190)])
             neighborhood = neighborhood[neighborhood[:, 2].argsort()]
 
-            for neigh_sol in neighborhood:
-                if neigh_sol[0] not in tabu_list:
-                    break
-                elif neigh_sol[2] < best_obj:
-                    best_obj = neigh_sol[2]
-                    best_set = neigh_sol[1]
-                    break
+            index_neighborhood = np.random.randint(0, 189)
+
+            neigh_sol = neighborhood[index_neighborhood]
+
+            #if neigh_sol[0] not in tabu_list:
+            #    break
+            #elif neigh_sol[2] < best_obj:
+            #    best_obj = neigh_sol[2]
+            #    best_set = neigh_sol[1]
+            #    break
 
             location_set = neigh_sol[1]
 
@@ -81,4 +85,4 @@ for tabu_exp in [13]:
         print(best_set)
 
 df = pd.DataFrame(obj_final_total)
-df.T.to_excel("TS_HW5/obj_value_d.xlsx")
+df.T.to_excel("TS_HW5/obj_value_e.xlsx")
