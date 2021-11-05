@@ -19,7 +19,7 @@ y_ub = 512
 v_max = x_ub / 40
 v_min = x_lb / 40
 
-phi_1 = 0
+phi_1 = 2
 phi_2 = 2
 
 # %% Saving vector
@@ -29,8 +29,9 @@ df_fitness_objectives = pd.DataFrame()
 
 for seed_it in range(10):
     print(seed_it)
-    phi_1 = 0
-    phi_2 = 2
+    phi_1 = 2.1
+    phi_2 = 2.1
+    k_constriction = 2 / np.abs(2 - (phi_1 + phi_2) - np.sqrt((phi_1 + phi_2)**2 - 4 * (phi_1 + phi_2)))
     iterations_counter = 0
     number_iterations = 100
     counter_phi = 0
@@ -49,6 +50,7 @@ for seed_it in range(10):
     # %% Start iterations
 
     while iterations_counter <= number_iterations:
+
         for i in range(pop_size):
             p_fitness[i] = eggholder(p_vector[i][0], p_vector[i][1])
             fitness_save.append(p_fitness[i])
@@ -65,33 +67,33 @@ for seed_it in range(10):
             p_velocity_cand_x = 0
             p_velocity_cand_y = 0
 
-            p_velocity_cand_x = p_velocity[i][0] + np.random.uniform(0, phi_1) * (
-                    p_position[i][0] - p_vector[i][0]) + np.random.uniform(0, phi_2) * (best_particle[0] - p_vector[i][0])
+            p_velocity_cand_x = k_constriction * (p_velocity[i][0] + np.random.uniform(0, phi_1) * (
+                    p_position[i][0] - p_vector[i][0]) + np.random.uniform(0, phi_2) * (best_particle[0] - p_vector[i][0]))
 
-            while p_velocity_cand_x <= v_min or p_velocity_cand_x >= v_max:
-                counter_phi += 1
-                p_velocity_cand_x = p_velocity[i][0] + np.random.uniform(0, phi_1) * (
-                        p_position[i][0] - p_vector[i][0]) + np.random.uniform(0, phi_2) * (
-                                                best_particle[0] - p_vector[i][0])
-
-                if counter_phi >= max_phi_iteration:
-                    phi_1 = phi_1 * 0.9
-                    phi_2 = phi_2 * 0.9
+            # while p_velocity_cand_x <= v_min or p_velocity_cand_x >= v_max:
+            #     counter_phi += 1
+            #     p_velocity_cand_x = w_inertia * p_velocity[i][0] + np.random.uniform(0, phi_1) * (
+            #             p_position[i][0] - p_vector[i][0]) + np.random.uniform(0, phi_2) * (
+            #                                     best_particle[0] - p_vector[i][0])
+            #
+            #     if counter_phi >= max_phi_iteration:
+            #         phi_1 = phi_1 * 0.9
+            #         phi_2 = phi_2 * 0.9
 
             p_velocity[i][0] = p_velocity_cand_x.copy()
 
-            p_velocity_cand_y = p_velocity[i][1] + np.random.uniform(0, phi_1) * (
-                    p_position[i][1] - p_vector[i][1]) + np.random.uniform(0, phi_2) * (best_particle[1] - p_vector[i][1])
+            p_velocity_cand_y = k_constriction * (p_velocity[i][1] + np.random.uniform(0, phi_1) * (
+                    p_position[i][1] - p_vector[i][1]) + np.random.uniform(0, phi_2) * (best_particle[1] - p_vector[i][1]))
 
-            while p_velocity_cand_y <= v_min or p_velocity_cand_y >= v_max:
-                counter_phi += 1
-                p_velocity_cand_y = p_velocity[i][1] + np.random.uniform(0, phi_1) * (
-                        p_position[i][1] - p_vector[i][1]) + np.random.uniform(0, phi_2) * (
-                                                best_particle[1] - p_vector[i][1])
-
-                if counter_phi >= max_phi_iteration:
-                    phi_1 = phi_1 * 0.9
-                    phi_2 = phi_2 * 0.9
+            # while p_velocity_cand_y <= v_min or p_velocity_cand_y >= v_max:
+            #     counter_phi += 1
+            #     p_velocity_cand_y = w_inertia * p_velocity[i][1] + np.random.uniform(0, phi_1) * (
+            #             p_position[i][1] - p_vector[i][1]) + np.random.uniform(0, phi_2) * (
+            #                                     best_particle[1] - p_vector[i][1])
+            #
+            #     if counter_phi >= max_phi_iteration:
+            #         phi_1 = phi_1 * 0.9
+            #         phi_2 = phi_2 * 0.9
 
             p_velocity[i][1] = p_velocity_cand_y.copy()
 
@@ -115,5 +117,5 @@ for seed_it in range(10):
     df_fitness_objectives[f'Seed {seed_it}'] = fitness_save
     df_best_objective[f'Seed {seed_it}'] = best_objective_save
 
-df_fitness_objectives.to_excel('PSO_HW6/results/fitness_total_v3.xlsx', index = False)
-df_best_objective.to_excel('PSO_HW6/results/best_objectives_v3.xlsx', index = False)
+df_fitness_objectives.to_excel('PSO_HW6/results/fitness_total_v7.xlsx', index = False)
+df_best_objective.to_excel('PSO_HW6/results/best_objectives_v7.xlsx', index = False)
