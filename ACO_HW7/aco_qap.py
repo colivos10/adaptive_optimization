@@ -19,15 +19,10 @@ flow_matrix = df_flow.to_numpy()
 n_departments = len(distance_matrix)
 arcs = np.array([(i, j) for i in range(n_departments) for j in range(n_departments)])
 #%%
-dpt_perm = np.array([i for i in range(20)])
-
-first_dpt = np.random.choice(dpt_perm)
-ant_perm = np.array([first_dpt])
-dpt_perm = np.delete(dpt_perm, [first_dpt])
+# Create initial tau matrix
 
 initial_tau = 1/(20 * 2000)
 
-# Create initial tau matrix
 tau_matrix = np.zeros((20, 20))
 for i in range(n_departments):
     for j in range(n_departments):
@@ -36,11 +31,22 @@ for i in range(n_departments):
         else:
             tau_matrix[i, j] = initial_tau
 
+dpt_perm = np.array([i for i in range(20)])
+
+first_dpt = np.random.choice(dpt_perm)
+ant_perm = np.array([first_dpt])
+dpt_perm = np.delete(dpt_perm, [first_dpt])
+
 alpha = 1
 beta = 2
-k = 2
-for i in dpt_perm:
-    probability = (tau_matrix[0, k] ** alpha) * (1/distance_matrix[0, k]) ** beta / sum((tau_matrix[i, j] ** alpha) * (1/distance_matrix[i, j]) ** beta for (i, j) in arcs if i != j)
+
+pbb_trail = np.zeros(shape=(19))
+count = 0
+for k in dpt_perm:
+    pbb_trail[count] = (tau_matrix[ant_perm[0], k] ** alpha) * (1/distance_matrix[ant_perm[0], k]) ** beta / sum((tau_matrix[ant_perm[0], j] ** alpha) * (1 / distance_matrix[ant_perm[0], j]) ** beta for j in dpt_perm)
+    count = count + 1
+
+cum_pbb_trail = np.cumsum(pbb_trail)
 
 
 
