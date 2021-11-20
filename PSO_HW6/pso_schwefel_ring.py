@@ -38,8 +38,8 @@ for pop_it in [100, 200]:
 
         v_max = x_ub / 40
         v_min = x_lb / 40
-        phi_1 = 0
-        phi_2 = 2
+        phi_1 = np.random.uniform(3, 4)
+        phi_2 = np.random.uniform(3, 4)
         iterations_counter = 0
         number_iterations = 100
         counter_phi = 0
@@ -106,7 +106,7 @@ for pop_it in [100, 200]:
 
                     if counter_phi >= max_phi_iteration:
                         phi_1 = phi_1 * 0.95
-                        phi_2 = phi_2 * 0.95
+                        phi_2 = phi_2 * 0.7
 
                 p_velocity[i][1] = p_velocity_cand_y.copy()
 
@@ -121,7 +121,7 @@ for pop_it in [100, 200]:
                                                     best_particle[2] - p_vector[i][2])
 
                     if counter_phi >= max_phi_iteration:
-                        phi_1 = phi_1 * 0.95
+                        phi_1 = phi_1 * 0.6
                         phi_2 = phi_2 * 0.95
 
                 p_velocity[i][2] = p_velocity_cand_w.copy()
@@ -174,5 +174,5 @@ for pop_it in [100, 200]:
         df_fitness_objectives[f'Seed {seed_it}'] = fitness_save
         df_best_objective[f'Seed {seed_it}'] = best_objective_save
 
-    df_fitness_objectives.to_excel(f'PSO_HW6/results/fitness_total_v9_sch_{pop_it}.xlsx', index = False)
-    df_best_objective.to_excel(f'PSO_HW6/results/best_objectives_v9_sch_{pop_it}.xlsx', index = False)
+    df_fitness_objectives.to_excel(f'PSO_HW6/results/fitness_total_v11_sch_{pop_it}.xlsx', index = False)
+    df_best_objective.to_excel(f'PSO_HW6/results/best_objectives_v11_sch_{pop_it}.xlsx', index = False)

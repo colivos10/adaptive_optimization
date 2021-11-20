@@ -30,23 +30,24 @@ z_ub = 512
 
 # %% Saving vector
 
-for pop_it in [100, 200]:
-    pop_size = pop_it
+for pop_it in [50, 150]:
     df_best_objective = pd.DataFrame()
     df_fitness_objectives = pd.DataFrame()
+    pop_size = pop_it
     for seed_it in range(10):
 
         v_max = x_ub / 40
         v_min = x_lb / 40
-        phi_1 = 0
-        phi_2 = 2
+        phi_1 = 2.1
+        phi_2 = 2.1
+        k_constriction = 2 / np.abs(2 - (phi_1 + phi_2) - np.sqrt((phi_1 + phi_2) ** 2 - 4 * (phi_1 + phi_2)))
         iterations_counter = 0
         number_iterations = 100
         counter_phi = 0
         max_phi_iteration = 100
         best_objective_save = []
         fitness_save = []
-
+        w_inertia = 0.9
         np.random.seed(seed_it)
 
         # %% Initialize particles
@@ -59,6 +60,10 @@ for pop_it in [100, 200]:
         p_position_fitness = p_fitness.copy()
         # %% Start iterations
         while iterations_counter <= number_iterations:
+
+            if iterations_counter % 10 == 0:
+                w_inertia = w_inertia * 0.9
+
             for i in range(pop_size):
                 p_fitness[i] = schwefel(p_vector[i][0], p_vector[i][1], p_vector[i][2], p_vector[i][3], alpha, n)
                 fitness_save.append(p_fitness[i])
@@ -78,67 +83,27 @@ for pop_it in [100, 200]:
                 p_velocity_cand_z = 0
 
                 # For x
-                p_velocity_cand_x = p_velocity[i][0] + np.random.uniform(0, phi_1) * (
-                        p_position[i][0] - p_vector[i][0]) + np.random.uniform(0, phi_2) * (best_particle[0] - p_vector[i][0])
-
-                while p_velocity_cand_x <= v_min or p_velocity_cand_x >= v_max:
-                    counter_phi += 1
-                    p_velocity_cand_x = p_velocity[i][0] + np.random.uniform(0, phi_1) * (
-                            p_position[i][0] - p_vector[i][0]) + np.random.uniform(0, phi_2) * (
-                                                    best_particle[0] - p_vector[i][0])
-
-                    if counter_phi >= max_phi_iteration:
-                        phi_1 = phi_1 * 0.95
-                        phi_2 = phi_2 * 0.95
+                p_velocity_cand_x = k_constriction * (w_inertia * p_velocity[i][0] + np.random.uniform(0, phi_1) * (
+                        p_position[i][0] - p_vector[i][0]) + np.random.uniform(0, phi_2) * (best_particle[0] - p_vector[i][0]))
 
                 p_velocity[i][0] = p_velocity_cand_x.copy()
 
                 # For y
 
-                p_velocity_cand_y = p_velocity[i][1] + np.random.uniform(0, phi_1) * (
-                        p_position[i][1] - p_vector[i][1]) + np.random.uniform(0, phi_2) * (best_particle[1] - p_vector[i][1])
-
-                while p_velocity_cand_y <= v_min or p_velocity_cand_y >= v_max:
-                    counter_phi += 1
-                    p_velocity_cand_y = p_velocity[i][1] + np.random.uniform(0, phi_1) * (
-                            p_position[i][1] - p_vector[i][1]) + np.random.uniform(0, phi_2) * (
-                                                    best_particle[1] - p_vector[i][1])
-
-                    if counter_phi >= max_phi_iteration:
-                        phi_1 = phi_1 * 0.95
-                        phi_2 = phi_2 * 0.95
+                p_velocity_cand_y = k_constriction * (w_inertia * p_velocity[i][1] + np.random.uniform(0, phi_1) * (
+                        p_position[i][1] - p_vector[i][1]) + np.random.uniform(0, phi_2) * (best_particle[1] - p_vector[i][1]))
 
                 p_velocity[i][1] = p_velocity_cand_y.copy()
 
                 # For w
-                p_velocity_cand_w = p_velocity[i][0] + np.random.uniform(0, phi_1) * (
-                        p_position[i][0] - p_vector[i][0]) + np.random.uniform(0, phi_2) * (best_particle[0] - p_vector[i][0])
-
-                while p_velocity_cand_w <= v_min or p_velocity_cand_w >= v_max:
-                    counter_phi += 1
-                    p_velocity_cand_w = p_velocity[i][2] + np.random.uniform(0, phi_1) * (
-                            p_position[i][2] - p_vector[i][2]) + np.random.uniform(0, phi_2) * (
-                                                    best_particle[2] - p_vector[i][2])
-
-                    if counter_phi >= max_phi_iteration:
-                        phi_1 = phi_1 * 0.95
-                        phi_2 = phi_2 * 0.95
+                p_velocity_cand_w = k_constriction * (w_inertia * p_velocity[i][0] + np.random.uniform(0, phi_1) * (
+                        p_position[i][0] - p_vector[i][0]) + np.random.uniform(0, phi_2) * (best_particle[0] - p_vector[i][0]))
 
                 p_velocity[i][2] = p_velocity_cand_w.copy()
 
                 # For z
-                p_velocity_cand_z = p_velocity[i][3] + np.random.uniform(0, phi_1) * (
-                        p_position[i][3] - p_vector[i][3]) + np.random.uniform(0, phi_2) * (best_particle[3] - p_vector[i][3])
-
-                while p_velocity_cand_z <= v_min or p_velocity_cand_z >= v_max:
-                    counter_phi += 1
-                    p_velocity_cand_z = p_velocity[i][3] + np.random.uniform(0, phi_1) * (
-                            p_position[i][3] - p_vector[i][3]) + np.random.uniform(0, phi_2) * (
-                                                    best_particle[3] - p_vector[i][3])
-
-                    if counter_phi >= max_phi_iteration:
-                        phi_1 = phi_1 * 0.95
-                        phi_2 = phi_2 * 0.95
+                p_velocity_cand_z = k_constriction * (w_inertia * p_velocity[i][3] + np.random.uniform(0, phi_1) * (
+                        p_position[i][3] - p_vector[i][3]) + np.random.uniform(0, phi_2) * (best_particle[3] - p_vector[i][3]))
 
                 p_velocity[i][3] = p_velocity_cand_z.copy()
 

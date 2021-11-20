@@ -10,10 +10,10 @@ def objective_function(distance, flow, departments_set_square, department_assign
 
 #%%
 # Import data
-df_distance = pd.read_excel('TS_HW5/data_qap.xlsx', sheet_name = 'Distance', header=None)
+df_distance = pd.read_excel('ACO_HW7/data_qap.xlsx', sheet_name = 'Distance', header=None)
 distance_matrix = df_distance.to_numpy()
 
-df_flow = pd.read_excel('TS_HW5/data_qap.xlsx', sheet_name = 'Flow', header=None)
+df_flow = pd.read_excel('ACO_HW7/data_qap.xlsx', sheet_name = 'Flow', header=None)
 flow_matrix = df_flow.to_numpy()
 
 n_departments = len(distance_matrix)
@@ -31,10 +31,10 @@ for i in range(n_departments):
             tau_matrix[i, j] = initial_tau
 
 m = 10 # Number of ants
-alpha = 6
-beta = 6
-rho = 0.85
-max_iterations = 500
+alpha = 2
+beta = 3
+rho = 0.9
+max_iterations = 350
 
 ants = np.empty((m,),dtype=object)
 
@@ -95,7 +95,7 @@ for seed_it in range(10):
     best_value_list = []
 
     for iterations in range(max_iterations):
-
+        print(iterations)
         obj_value = {}
         for ant_it in range(m):
             current_value = objective_function(distance_matrix, flow_matrix, arcs, [(departments_set[pos], ants[ant_it][pos]) for pos in range(n_departments)])
@@ -113,7 +113,7 @@ for seed_it in range(10):
                 else:
                     for m_it in range(m):
                         if set([i, j]).issubset(set(ants[m_it])):
-                            delta_tau_matrix[i, j] = delta_tau_matrix[i, j] + (1 / obj_value[m_it])
+                                delta_tau_matrix[i, j] = delta_tau_matrix[i, j] + (1 / obj_value[m_it])
 
         for i in range(n_departments):
             for j in range(n_departments):
@@ -127,4 +127,4 @@ for seed_it in range(10):
     best_value_total.append(best_value_list)
 
 df = pd.DataFrame(best_value_total)
-df.T.to_excel("ACO_HW7/obj_value_a.xlsx")
+df.T.to_excel("ACO_HW7/obj_value_h.xlsx", index = False)

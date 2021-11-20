@@ -70,30 +70,10 @@ for seed_it in range(10):
             p_velocity_cand_x = k_constriction * (p_velocity[i][0] + np.random.uniform(0, phi_1) * (
                     p_position[i][0] - p_vector[i][0]) + np.random.uniform(0, phi_2) * (best_particle[0] - p_vector[i][0]))
 
-            # while p_velocity_cand_x <= v_min or p_velocity_cand_x >= v_max:
-            #     counter_phi += 1
-            #     p_velocity_cand_x = w_inertia * p_velocity[i][0] + np.random.uniform(0, phi_1) * (
-            #             p_position[i][0] - p_vector[i][0]) + np.random.uniform(0, phi_2) * (
-            #                                     best_particle[0] - p_vector[i][0])
-            #
-            #     if counter_phi >= max_phi_iteration:
-            #         phi_1 = phi_1 * 0.9
-            #         phi_2 = phi_2 * 0.9
-
             p_velocity[i][0] = p_velocity_cand_x.copy()
 
             p_velocity_cand_y = k_constriction * (p_velocity[i][1] + np.random.uniform(0, phi_1) * (
                     p_position[i][1] - p_vector[i][1]) + np.random.uniform(0, phi_2) * (best_particle[1] - p_vector[i][1]))
-
-            # while p_velocity_cand_y <= v_min or p_velocity_cand_y >= v_max:
-            #     counter_phi += 1
-            #     p_velocity_cand_y = w_inertia * p_velocity[i][1] + np.random.uniform(0, phi_1) * (
-            #             p_position[i][1] - p_vector[i][1]) + np.random.uniform(0, phi_2) * (
-            #                                     best_particle[1] - p_vector[i][1])
-            #
-            #     if counter_phi >= max_phi_iteration:
-            #         phi_1 = phi_1 * 0.9
-            #         phi_2 = phi_2 * 0.9
 
             p_velocity[i][1] = p_velocity_cand_y.copy()
 
